@@ -7,27 +7,27 @@ namespace SistemaBancario
         public Titular Titular { get; set; }
         public int NumeroConta { get; set; }
         public double Saldo { get; private set; }
-        public List<string> HistoricoTransacoes = new();
+        private List<Transacao> HistoricoTransacoes = new();
 
-        public ContaBancaria(Titular titular, int numeroConta, double saldo, List<string> historicoTransacoes)
+        public ContaBancaria(Titular titular, int numeroConta, double saldo = 0)
         {
             Titular = titular;
             NumeroConta = numeroConta;
             Saldo = saldo;
-            HistoricoTransacoes = historicoTransacoes;
+            HistoricoTransacoes = new List<Transacao>();
         }
 
         public void Depositar(double quantia)
         {
-            if (quantia > 0.00)
+            if (quantia > 0)
             {
                 Saldo += quantia;
-                HistoricoTransacoes.Add($"Depósito no valor de R${quantia.ToString("F2", CultureInfo.InvariantCulture)} realizado.");
-                Console.WriteLine("Operação realizada.");
+                Console.WriteLine($"\nDepósito no valor de R${quantia.ToString("F2", CultureInfo.InvariantCulture)} realizado.");
+                HistoricoTransacoes.Add(new Transacao(DateTime.Now, "Depósito", quantia));
             }
             else
             {
-                Console.WriteLine("O valor de depósito deve ser maior que zero.");
+                Console.WriteLine("\nO valor de depósito deve ser maior que zero.");
             }
         }
 
@@ -35,52 +35,86 @@ namespace SistemaBancario
         {
             if (quantia > 0 && quantia <= Saldo)
             {
-                Saldo -= quantia + (quantia * 0.01);
-                HistoricoTransacoes.Add($"Saque no valor de R${quantia.ToString("F2", CultureInfo.InvariantCulture)} realizado.");
-                Console.WriteLine("Operação realizada.");
+                double taxa = quantia * 0.01;
+                double total = quantia + taxa;
+
+                Saldo -= total;
+                Console.WriteLine($"\nSaque no valor de R${quantia.ToString("F2", CultureInfo.InvariantCulture)} realizado.");
+                HistoricoTransacoes.Add(new Transacao(DateTime.Now, "Saque", quantia));
             }
             else
             {
-                Console.WriteLine("Quantia solicitada é inválida.");
+                Console.WriteLine($"\nNão foi possível realizar o saque de R${quantia:F2}");
             }
         }
 
         public void ExibirDadosDaConta()
         {
-            Console.WriteLine($"Titular: {Titular.Nome}");
+            Console.WriteLine($"\nTitular: {Titular.Nome.ToUpper()}");
             Console.WriteLine($"CPF: {Titular.Cpf}");
-            Console.WriteLine($"Endereço: {Titular.Endereco}");
+            Console.WriteLine($"Endereço: {Titular.Endereco.ToUpper()}");
             Console.WriteLine($"Número da conta: {NumeroConta}");
             Console.WriteLine($"Saldo: R$ {Saldo.ToString("F2", CultureInfo.InvariantCulture)}");
         }
 
-        public void ExibirHistoricoDeTransacoes()
+        public void ExibirExtrato()
         {
             if (HistoricoTransacoes.Count == 0)
             {
-                Console.WriteLine("Nenhuma transação foi efetuada.");
+                Console.WriteLine("\nNenhuma transação foi efetuada.");
             }
             else
             {
-                foreach (var t in HistoricoTransacoes)
+                Console.Write("\nQual o tipo de transação deseja ver? (Depósito/Saque/Transferência): ");
+                string tipo = Console.ReadLine()!;
+                if (tipo == "Depósito" || tipo == "Saque" || tipo == "Transferência")
                 {
-                    Console.WriteLine(t);
+                    var filtradas = HistoricoTransacoes.Where(t => t.Tipo == tipo);
+                    if (!filtradas.Any())
+                    {
+                        Console.WriteLine($"\nNenhuma transação do tipo {tipo} encontrada.");
+                    }
+                    else
+                    {
+                        foreach (var t in filtradas)
+                        {
+                            Console.WriteLine($"\n- {t.Data:dd/MM/yyyy HH:mm} - {t.Tipo} de R$ {t.Valor.ToString("F2", CultureInfo.InvariantCulture)}");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("\nOpção inválida");
                 }
             }
         }
 
         public void Transferir(ContaBancaria conta, double quantia)
         {
-            if (quantia > 0.00 && quantia <= Saldo)
+            if (quantia > 0 && quantia <= Saldo)
             {
                 Saldo -= quantia;
-                conta.Depositar(quantia);
-                HistoricoTransacoes.Add($"Transferência no valor de R$ {quantia.ToString("F2", CultureInfo.InvariantCulture)} para a conta nº {conta.NumeroConta} - {conta.Titular.Nome} realizada.");
+                Console.WriteLine($"\nTransferência de R$ {quantia.ToString("F2", CultureInfo.InvariantCulture)} para a conta nº {conta.NumeroConta} - {conta.Titular.Nome} realizada.");
+                HistoricoTransacoes.Add(new Transacao(DateTime.Now, "Transferência", quantia));
             }
             else
             {
-                Console.WriteLine("Quantia solicitada é inválida.");
+                Console.WriteLine("\nQuantia solicitada para transferência é inválida.");
             }
+        }
+    }
+
+    public class Transacao
+    {
+        public DateTime Data { get; }
+        public string Tipo { get; }
+        public double Valor { get; }
+
+        public Transacao(DateTime data, string tipo, double valor)
+        {
+            Data = data;
+            Tipo = tipo;
+            Valor = valor;
         }
     }
 }

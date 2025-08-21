@@ -1,9 +1,12 @@
 ﻿using SistemaBancario;
 
-Titular titular1 = new Titular("Renan Aguiar", "111.222.333-45", "Rua das Papoulas, 10");
-Titular titular2 = new Titular("Juliana Ferreira", "123.456.789-10", "Rua das Margaridas, 8");
-ContaBancaria c1 = new ContaBancaria(titular1, 123, 2500.00, new List<string>());
-ContaBancaria c2 = new ContaBancaria(titular2, 322, 1300.00, new List<string>());
+Titular t1 = new("Renan Aguiar", "133.729.497-73", "Rua Edessa, 10 - Cariacica ES");
+Titular t2 = new("Lorraine Vieira", "159.003.187-37", "Rua da União, 130 - Venda Nova do Imigrante ES");
+
+ContaBancaria c1 = new(t1, 123);
+ContaBancaria c2 = new(t2, 456, 1500);
+
+ContaBancaria contaLogada = null;
 
 void ExibirLogo()
 {
@@ -19,58 +22,85 @@ void ExibirLogo()
 
 void ExibirInterfaceInicial()
 {
+    Console.Clear();
     ExibirLogo();
-    Console.Write("CPF: ");
-    string cpf = Console.ReadLine()!;
-    Console.Write("Número da conta: ");
-    int num = int.Parse(Console.ReadLine()!);
-    if (titular1.Cpf == cpf && c1.NumeroConta == num)
+    Console.WriteLine("\nBem-vindo(a) ao caixa eletrônico do RS Bank. O que deseja fazer?");
+    Console.WriteLine("\n[1] - Acessar sua conta bancária");
+    Console.WriteLine("[0] - Encerrar o programa");
+    Console.Write("\nSua opção: ");
+    int op = int.Parse(Console.ReadLine()!);
+    if(op == 1)
     {
-        Console.WriteLine("Acesso autorizado.");
-        Thread.Sleep(2000);
         Console.Clear();
-        ExibirMenu();
+        ExibirTituloFormatado("ÁREA DE LOGIN");
+        Console.Write("\nCPF: ");
+        string cpf = Console.ReadLine()!;
+        Console.Write("Número da conta: ");
+        int num = int.Parse(Console.ReadLine()!);
+
+        Console.WriteLine("\nCarregando... Por favor aguarde...");
+        Thread.Sleep(3000);
+
+        if (t1.Cpf == cpf && c1.NumeroConta == num)
+        {
+            contaLogada = c1;
+            Console.WriteLine($"\nAcesso autorizado. Seja bem-vindo(a) {t1.Nome}");
+            Thread.Sleep(3000);
+            Console.Clear();
+            ExibirMenu();
+        }
+        else if (t2.Cpf == cpf && c2.NumeroConta == num)
+        {
+            contaLogada = c2;
+            Console.WriteLine($"\nAcesso autorizado. Seja bem-vindo(a) {t2.Nome}");
+            Thread.Sleep(3000);
+            Console.Clear();
+            ExibirMenu();
+        }
+        else
+        {
+            Console.Clear();
+            Console.WriteLine("\nConta não encontrada na base de dados. Acesso negado.");
+            Thread.Sleep(3000);
+            ExibirInterfaceInicial();
+        }
     }
     else
     {
-        Thread.Sleep(2000);
-        Console.Clear();
-        Console.WriteLine("Conta não encontrada no banco de dados. Acesso negado.");
+        Console.WriteLine("\nVocê escolheu sair. Programa finalizado.");
+        Thread.Sleep(3000);
     }
 }
 
 void ExibirMenu()
 {
     ExibirLogo();
-    Console.WriteLine("CAIXA ELETRÔNICO");
-    Console.WriteLine("\n1 - Depósito");
-    Console.WriteLine("2 - Saque");
-    Console.WriteLine("3 - Listar histórico de transações");
-    Console.WriteLine("4 - Transferência");
-    Console.WriteLine("5 - Exibir dados da conta");
-    Console.WriteLine("0 - Sair");
+    ExibirTituloFormatado("CAIXA ELETRÔNICO - MENU");
+    Console.WriteLine("\n[1] - Depósito");
+    Console.WriteLine("[2] - Saque");
+    Console.WriteLine("[3] - Extrato");
+    Console.WriteLine("[4] - Transferência");
+    Console.WriteLine("[5] - Exibir informações da conta");
+    Console.WriteLine("[0] - Sair");
 
     Console.Write("\nDigite sua opção: ");
     int opcao = int.Parse(Console.ReadLine()!);
     switch (opcao)
     {
-        case 1:
-            EfetuarDeposito();
+        case 1: EfetuarDeposito();
             break;
-        case 2:
-            EfetuarSaque();
+        case 2: EfetuarSaque();
             break;
-        case 3:
-            ListarHistoricoDeTransacoes();
+        case 3: ListarHistoricoDeTransacoes();
             break;
-        case 4:
-            Transferencia();
+        case 4: Transferencia();
             break;
-        case 5:
-            ExibirDadosDaConta();
+        case 5: ExibirDadosDaConta();
             break;
-        case 0:
-            Console.WriteLine();
+        case 0: Console.WriteLine("Você escolheu sair. Fim do programa.");
+            break;
+        default:
+            Console.WriteLine("Opção inválida. Fim do programa");
             break;
     }
 }
@@ -81,17 +111,17 @@ void ExibirTituloFormatado(string titulo)
     string asteriscos = string.Empty.PadLeft(qtdLetras, '*');
     Console.WriteLine(asteriscos);
     Console.WriteLine(titulo);
-    Console.WriteLine(asteriscos + "\n");
+    Console.WriteLine(asteriscos);
 }
 
 void EfetuarDeposito()
 {
     Console.Clear();
-    ExibirTituloFormatado("Depósito");
+    ExibirTituloFormatado("DEPÓSITO");
     Console.Write("\nQual a quantia que deseja depositar? ");
     double quantia = double.Parse(Console.ReadLine()!);
-    c1.Depositar(quantia);
-    Thread.Sleep(1000);
+    contaLogada.Depositar(quantia);
+    Thread.Sleep(3000);
     Console.Clear();
     ExibirMenu();
 }
@@ -99,12 +129,12 @@ void EfetuarDeposito()
 void EfetuarSaque()
 {
     Console.Clear();
-    ExibirTituloFormatado("Saque");
+    ExibirTituloFormatado("SAQUE");
     Console.WriteLine("O RS Bank cobra uma taxa de 1% sobre o valor do saque.");
     Console.Write("\nQual a quantia que deseja sacar? ");
     double quantia = double.Parse(Console.ReadLine()!);
-    c1.Sacar(quantia);
-    Thread.Sleep(1000);
+    contaLogada.Sacar(quantia);
+    Thread.Sleep(3000);
     Console.Clear();
     ExibirMenu();
 }
@@ -112,8 +142,8 @@ void EfetuarSaque()
 void ListarHistoricoDeTransacoes()
 {
     Console.Clear();
-    ExibirTituloFormatado("Histórico de transações");
-    c1.ExibirHistoricoDeTransacoes();
+    ExibirTituloFormatado("EXTRATO");
+    contaLogada.ExibirExtrato();
     Console.WriteLine("\nDigite uma tecla para voltar ao menu.");
     Console.ReadKey();
     Console.Clear();
@@ -123,12 +153,12 @@ void ListarHistoricoDeTransacoes()
 void Transferencia()
 {
     Console.Clear();
-    ExibirTituloFormatado("Transferência");
+    ExibirTituloFormatado("TRANSFERÊNCIA");
     Console.Write("Número da conta: ");
     int num = int.Parse(Console.ReadLine()!);
     if (c2.NumeroConta == num)
     {
-        Console.WriteLine($"Transferência: {c1.Titular.Nome} => {c2.Titular.Nome}\n");
+        Console.WriteLine($"\nTransferência: {c1.Titular.Nome} => {c2.Titular.Nome}\n");
         Console.Write("Quanto deseja transferir? ");
         double quantia = double.Parse(Console.ReadLine()!);
         c1.Transferir(c2, quantia);
@@ -147,8 +177,8 @@ void Transferencia()
 void ExibirDadosDaConta()
 {
     Console.Clear();
-    ExibirTituloFormatado("Dados da Conta");
-    c1.ExibirDadosDaConta();
+    ExibirTituloFormatado("DADOS DA CONTA");
+    contaLogada.ExibirDadosDaConta();
     Console.WriteLine("\nDigite uma tecla para voltar ao menu.");
     Console.ReadKey();
     Console.Clear();
