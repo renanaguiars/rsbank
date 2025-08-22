@@ -44,7 +44,7 @@ namespace SistemaBancario
             }
             else
             {
-                Console.WriteLine($"\nNão foi possível realizar o saque de R${quantia:F2}");
+                Console.WriteLine($"\nNão foi possível realizar o saque de R${quantia:F2}. Saldo insuficiente.");
             }
         }
 
@@ -61,12 +61,12 @@ namespace SistemaBancario
         {
             if (HistoricoTransacoes.Count == 0)
             {
-                Console.WriteLine("\nNenhuma transação foi efetuada.");
+                Console.WriteLine("\nNenhuma transação foi efetuada até o momento.");
             }
             else
             {
-                Console.Write("\nQual o tipo de transação deseja ver? (Depósito/Saque/Transferência): ");
-                string tipo = Console.ReadLine()!;
+                Console.Write("\nQual o tipo de transação? (Depósito/Saque/Transferência): ");
+                string tipo = Console.ReadLine();
                 if (tipo == "Depósito" || tipo == "Saque" || tipo == "Transferência")
                 {
                     var filtradas = HistoricoTransacoes.Where(t => t.Tipo == tipo);

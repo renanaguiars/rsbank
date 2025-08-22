@@ -1,12 +1,13 @@
 ﻿using SistemaBancario;
 
-Titular t1 = new("Renan Aguiar", "133.729.497-73", "Rua Edessa, 10 - Cariacica ES");
-Titular t2 = new("Lorraine Vieira", "159.003.187-37", "Rua da União, 130 - Venda Nova do Imigrante ES");
+Titular t1 = new("Elon Musk", "123.456.789-10", "Rua das Couves, 42 - São Paulo SP");
+Titular t2 = new("Mark Zuckerberg", "987.654.321-00", "Rua dos Brócolis, 130 - Rio de Janeiro RJ");
 
 ContaBancaria c1 = new(t1, 123);
-ContaBancaria c2 = new(t2, 456, 1500);
+ContaBancaria c2 = new(t2, 987, 1500);
 
 ContaBancaria contaLogada = null;
+ContaBancaria contaDeslogada = null;
 
 void ExibirLogo()
 {
@@ -44,7 +45,9 @@ void ExibirInterfaceInicial()
         if (t1.Cpf == cpf && c1.NumeroConta == num)
         {
             contaLogada = c1;
-            Console.WriteLine($"\nAcesso autorizado. Seja bem-vindo(a) {t1.Nome}");
+            contaDeslogada = c2;
+            Console.WriteLine($"\nAcesso autorizado.");
+            Console.WriteLine($"\nSeja bem-vindo(a) {t1.Nome}.");
             Thread.Sleep(3000);
             Console.Clear();
             ExibirMenu();
@@ -52,6 +55,7 @@ void ExibirInterfaceInicial()
         else if (t2.Cpf == cpf && c2.NumeroConta == num)
         {
             contaLogada = c2;
+            contaDeslogada = c1;
             Console.WriteLine($"\nAcesso autorizado. Seja bem-vindo(a) {t2.Nome}");
             Thread.Sleep(3000);
             Console.Clear();
@@ -156,16 +160,16 @@ void Transferencia()
     ExibirTituloFormatado("TRANSFERÊNCIA");
     Console.Write("Número da conta: ");
     int num = int.Parse(Console.ReadLine()!);
-    if (c2.NumeroConta == num)
+    if (num == contaDeslogada.NumeroConta)
     {
-        Console.WriteLine($"\nTransferência: {c1.Titular.Nome} => {c2.Titular.Nome}\n");
+        Console.WriteLine($"\nTransferência: {contaLogada.Titular.Nome} => {contaDeslogada.Titular.Nome}\n");
         Console.Write("Quanto deseja transferir? ");
         double quantia = double.Parse(Console.ReadLine()!);
-        c1.Transferir(c2, quantia);
+        contaLogada.Transferir(contaDeslogada, quantia);
     }
     else
     {
-        Console.WriteLine("Número de conta inválido.");
+        Console.WriteLine("\nNúmero de conta inválido. Refaça a operação.");
     }
 
     Console.WriteLine("\nDigite uma tecla para voltar ao menu.");
